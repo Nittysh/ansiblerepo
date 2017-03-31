@@ -1,0 +1,19 @@
+---
+- name: Install Cassandra
+  apt: pkg=cassandra state=present update_cache=yes force=yes
+  register: cassandra_install
+  tags:
+    - packages
+    
+- name: exporting the cassandra bundle
+  shell: export CQLSH_NO_BUNDLED=true
+
+- name: Install Cassandra config file
+  template: src=cassandra.yaml dest=/etc/cassandra/cassandra.yaml
+  notify: restart cassandra
+ 
+
+- name: Install log4j config file
+  template: src=log4j-server.properties dest=/etc/cassandra/log4j-server.properties
+  notify: restart cassandra
+ 

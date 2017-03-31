@@ -1,0 +1,24 @@
+---
+- name: Download WAR to server
+  get_url:
+    url: "{{ warUrl }}"
+    dest: "{{ warRemotePath }}/{{ warName }}"
+    mode: 0777
+  register: war_downloaded
+  
+- name: Set correct permissions
+  file: 
+    path: "{{ warRemotePath }}/{{ warName }}"
+    owner: tomcat
+    group: tomcat
+  when: war_downloaded.changed
+  register: war_deployed
+  
+- name: Restart tomcat
+  service:
+    name: tomcat
+    state: restarted
+  when: war_deployed.changed
+
+
+

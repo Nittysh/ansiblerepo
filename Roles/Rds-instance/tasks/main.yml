@@ -1,0 +1,23 @@
+---
+# This playbook will create rds instance in aws.
+# create a .boto file in home directory in localhost and give aws credentials to authenticate 
+# see boto documentation for more detais "http://boto.cloudhackers.com/en/latest/boto_config_tut.html"
+- name: creating an rds instance
+  rds:
+    command: create
+    instance_name: "{{ instance_name }}"
+    db_engine: "{{ db-engine }}"
+    size: 10
+    region: "{{ region }}"
+    instance_type: "{{ instance-type }}"
+    username: "{{ username }}"
+    password: "{{ password }}"
+    wait: yes
+    publicly_accessible: yes
+    wait_timeout: 1000
+    tags:
+      Environment: testing
+      Application: cms
+  register: rds_out
+  
+

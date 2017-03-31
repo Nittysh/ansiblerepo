@@ -1,0 +1,8 @@
+{
+        "accessKeyId": "config.key",
+        "secretAccessKey": "config.secret",
+        "region": "config.region"
+        "type":"{{filetype}}",
+        "hostname":"{{ansible_hostname}}"
+        "username":"{{ansible_user}}"
+}

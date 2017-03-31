@@ -1,0 +1,81 @@
+---
+#- name: installs the dokcer 
+#  shell: curl -fsSL https://get.docker.com | sh
+  
+- name: copy the dockerservice file
+  template: 
+    src: docker.service 
+    dest: /lib/systemd/system/
+    mode: 0755
+  
+- name: copy the dockersocket file
+  template: 
+    src: docker.socket
+    dest: /lib/systemd/system/
+    mode: 0755
+
+- name: copy the default file
+  template: 
+    src: defaultdocker
+    dest: /etc/default/docker
+    mode: 0755        
+    
+- name: copy the key generating script
+  copy: src=key.sh dest=/etc/docker mode=0766
+  
+- name: runs the script file
+  shell: sh /etc/docker/key.sh {{ groups['master'][0] }} 
+  
+- name: slurp key certs
+  slurp: src=/home/ubuntu/ca.pem
+  register: ca
+  run_once: true
+
+- name: slurp key certs
+  slurp: src=/home/ubuntu/ca-key.pem
+  register: ca_key
+  run_once: true
+
+- name: debug the ca.pem content 
+  debug:
+    msg: "{{ ca['content'] | b64decode }}"
+    
+- name: setfact the ca.pem
+  set_fact:
+    capem: "{{ ca['content'] | b64decode }}"
+    
+- name: debug the ca.pem content 
+  debug: 
+    msg: " this is the key {{ capem }}"
+  
+- name: debug the cakey.pem content 
+  debug:
+    msg: "{{ ca_key['content'] | b64decode }}"
+    
+- name: setfact the cakey.pem
+  set_fact:
+    cakey: "{{ ca_key['content'] | b64decode }}"
+    
+- name: debug the cakey.pem content  
+  debug: 
+    msg: " this is the key {{ cakey }}"    
+  
+- name: Restart the docker service
+  service: name=docker state=restarted        
+        
+- name: swarm cluster install
+  shell: docker swarm init --advertise-addr {{ groups['master'][0] }}:2377
+  
+- name: swarm token 
+  shell: docker swarm join-token --quiet worker
+  register: tokenkey
+  
+- debug:
+    msg: "this is the {{ tokenkey.stdout }}"
+
+- name: gets the token of master
+  set_fact:
+        swarmtoken: "{{ tokenkey.stdout }}"
+        
+- name: curls the dockercluster to verify tls 
+  shell: curl https://{{ groups['master'][0] }}:2376/info --cert /etc/docker/tlskey/cert.pem --key /etc/docker/tlskey/key.pem --cacert /etc/docker/tlskey/ca.pem

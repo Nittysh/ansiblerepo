@@ -1,0 +1,28 @@
+---
+- name: install python
+  apt: 
+    pkg: "python-setuptools"
+    state: present
+    
+- name: install supervisor
+  apt:    
+    pkg: supervisor
+    state: latest
+    
+- name: Creates directory
+  file: path=/etc/supervisor/conf.d state=directory
+  
+- name: Start supervisor
+  service: name=supervisor state=started
+  
+- name: Copy the supervisord.service
+  template: src=supervisord.service dest=/lib/systemd/system/
+ 
+- name: Copy the supervisord.conf
+  template: src=supervisord.conf dest=/etc/supervisor/
+  
+- name: crate a log file
+  file: path=/var/log/supervisord.sock state=touch
+  
+- name: Enable supervisor
+  service: name=supervisor state=started

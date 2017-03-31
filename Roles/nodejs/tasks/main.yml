@@ -1,0 +1,20 @@
+---  
+- name: install wget
+  yum:
+     name=wget
+
+- name: get epel
+  command: wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm 
+  
+- name: install
+  yum:
+     name=epel-release-latest-7.noarch.rpm 
+    
+- name: Install node js latest version
+  package:
+        name: nodejs
+        enablerepo: epel
+        state: latest
+- name: Check the node version
+  raw: node -v
+  register: output

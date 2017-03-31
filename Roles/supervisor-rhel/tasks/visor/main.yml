@@ -1,0 +1,28 @@
+---
+- name: Install python-setuptools
+  yum: 
+        pkg=python-setuptools
+        state=present 
+        
+- name: Install supervisor
+  shell: easy_install supervisor
+        
+- name: Creating the file directory
+  file: path=/etc/supervisord.d/
+     state=directory 
+     mode=0755        
+     
+- name: installing supervisord as systemd service
+  template: src=supervisord.service
+            dest=/etc/systemd/system
+ 
+- name: copy configservice file to folder
+  template: src=supervisord.conf  dest=/etc/supervisord.d/
+ 
+- name: Restart supervisord service
+  service: name=supervisord state=restarted enabled=yes
+
+
+     
+
+  

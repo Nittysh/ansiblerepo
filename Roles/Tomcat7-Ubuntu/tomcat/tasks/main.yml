@@ -1,0 +1,37 @@
+---
+# Installing Packages
+- name: Install python-selinux
+  apt: 
+    name=python-selinux
+    state=present
+    
+- name: Install Java 8
+  apt: 
+   name=default-jre 
+   state=present
+   
+- name: Install Tomcat7 (Ubuntu)
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - tomcat7
+    - libtcnative-1
+    - libapr1
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install Tomcat7 (Debian)
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - tomcat7
+  when: ansible_distribution == 'Debian'
+
+# Creating Tomcat Symlinks
+- name: Symlink to /usr/local/tomcat
+  file: dest=/usr/local/tomcat state=link src=/var/lib/tomcat7
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+
+# Creating Service Configuration
+- name: Configuring Tomcat Service (Ubuntu / Debian)
+  template: src=tomcat7.j2 dest=/etc/default/tomcat7 owner=root group=root mode=0644
+
+- name: Enable Tomcat Service
+  service: name=tomcat7 enabled=yes

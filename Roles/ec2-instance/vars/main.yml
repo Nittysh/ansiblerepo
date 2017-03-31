@@ -1,0 +1,10 @@
+aws-security-group: my-security-group   # security group name
+aws-region: us-west-2                   # aws region where you want to lauch an instance  
+key-name: centkey                       # aws access key
+instance-type:  t2.micro                # instance type
+image-id: ami-6f68cf0f                  # aws image id
+instance-tag-name: redhat-instance      # name of an instance
+intance-owner: vinay                    # owner of instace
+vpc-subnet:  vpc-ee25208a               # virtual private cloud subnet
+instance-count: 1                      
+

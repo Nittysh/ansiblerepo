@@ -1,0 +1,64 @@
+---
+#- name: installs the dokcer 
+#  shell: curl -fsSL https://get.docker.com | sh
+  
+- name: copy the dockerservice file
+  template: 
+    src: docker.service 
+    dest: /lib/systemd/system/
+    mode: 0755
+  
+- name: copy the dockersocket file
+  template: 
+    src: docker.socket
+    dest: /lib/systemd/system/
+    mode: 0755
+
+- name: copy the default file
+  template: 
+    src: defaultdocker
+    dest: /etc/default/docker
+    mode: 0755        
+
+- file:
+    path: /home/ubuntu/ca.pem
+    state: touch
+    mode: 0600
+    
+- lineinfile:
+    dest: /home/ubuntu/ca.pem
+    line: "{{ hostvars[groups['master'][0]]['capem'] }}"
+
+- name: this is the capem
+  debug:
+    msg: "{{ hostvars[groups['master'][0]]['capem'] }}"
+    
+- file:
+    path: /home/ubuntu/ca-key.pem
+    state: touch
+    mode: 0600
+
+- lineinfile:
+    dest: /home/ubuntu/ca-key.pem
+    line: "{{ hostvars[groups['master'][0]]['cakey'] }}"
+    
+- name: this is the cakey.pem
+  debug:
+    msg: "{{ hostvars[groups['master'][0]]['cakey'] }}"    
+        
+    
+- name: copy the key generating script
+  copy: src=key.sh dest=/etc/docker mode=0766
+  
+- name: runs the script file
+  shell: sh /etc/docker/key.sh {{ groups['master'][0] }}
+  
+- name: Restart the docker service
+  service: name=docker state=restarted  
+         
+- name: initialize swarm node
+  shell: docker swarm join --token {{ hostvars[groups['master'][0]]['swarmtoken'] }} {{ groups['master'][0] }}:2377
+  
+- name: curls the dockercluster to verify tls 
+  shell: curl https://{{ groups['master'][0] }}:2376/info --cert /etc/docker/tlskey/cert.pem --key /etc/docker/tlskey/key.pem --cacert /etc/docker/tlskey/ca.pem  
+

@@ -1,0 +1,54 @@
+---
+
+- name: Install common
+  yum: name={{ item }} state=present 
+  with_items:
+    - make
+    - gcc
+    - openssl-devel
+    - pcre-devel
+  
+  
+- name: Download the apache2 file from source
+  unarchive: 
+    src: http://www-eu.apache.org/dist/httpd/httpd-2.4.25.tar.gz
+    dest: /opt/
+    remote_src: True
+    
+
+    
+#- name: Download the aprfile from source
+#  unarchive: 
+#    src: http://www-us.apache.org/dist//apr/apr-1.5.2.tar.gz
+#    dest: /opt/httpd-2.4.25/srclib/ 
+#    remote_src: True    
+
+#- name: Download the apr-util file from source
+#  unarchive: 
+#    src: http://www-us.apache.org/dist//apr/apr-util-1.5.4.tar.gz
+#    dest: /opt/httpd-2.4.25/srclib/ 
+#    remote_src: True    
+
+
+#- name: run the apr configure from folder
+#  shell: /opt/httpd-2.4.25/configure --prefix=/usr/local/apache2 --with-included-apr 
+  
+  
+#- name: run the makefile from folder
+#  shell: make
+  
+#- name: run the make install file from folder
+#  shell: make install
+  
+- name: copy the scrip file for system
+  template: src=httpd.service dest=/etc/systemd/system/
+  
+- name: start the service
+  service: name=httpd state=started 
+  
+    
+
+
+
+  
+  

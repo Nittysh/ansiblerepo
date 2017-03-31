@@ -1,0 +1,13 @@
+# Here are variables related to the Tomcat installation
+
+http_port: 8080
+
+# This will configure a default manager-gui user:
+
+admin_username: admin
+
+# JAVA_OPTS for Tomcat: memory
+tomcat_xmx: 512m
+
+# JAVA_OPTS for Tomcat: everything else
+tomcat_extra_opts: ""

@@ -1,0 +1,15 @@
+# AWS specific variables
+
+ec2_region: us-west-2
+ec2_image: ami-6f68cf0f
+ec2_instance_type: t2.micro
+ec2_keypair: botokey
+ec2_security_group: botogroup
+ec2_instance_count: 1
+ec2_tag: Redhat-Instance
+
+
+
+
+
+  

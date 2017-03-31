@@ -1,0 +1,6 @@
+instance_name: mysql-instance  # name for an instance it should be unique accross the account
+db-engine: MYSQL               # type of database which you want to use
+region: us-west-2              # aws region to use
+instance-type: db.t2.micro     # The instance type of the databasae
+username: admin                # username for the database
+password: admin123             # password for the database

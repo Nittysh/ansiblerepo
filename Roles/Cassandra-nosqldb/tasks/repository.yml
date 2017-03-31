@@ -1,0 +1,23 @@
+---
+# Needed for add-apt-repository
+- name: Install python-software-properties
+  apt: pkg=python-software-properties state=installed update-cache=yes
+  tags:
+    - apt
+    
+- name: install depdendies for installing cassandra
+  shell: wget http://launchpadlibrarian.net/109052632/python-support_1.0.15_all.deb
+  
+- name: Installing python support
+  shell: dpkg -i python-support_1.0.15_all.deb
+  
+- name: Add repository key
+  apt_key: data="{{ lookup('file', '4BD736A82B5C1B00.gpg') }}"  state=present
+  tags:
+    - apt
+
+- name: Add Cassandra 2.0 repository
+  apt_repository: repo='{{ cassandra_2_0.repo }}' state=present
+  when: cassandra.version_branch == '2.0'
+  tags:
+    - apt

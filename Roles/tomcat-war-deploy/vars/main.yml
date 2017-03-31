@@ -1,0 +1,7 @@
+http_port: 8080
+https_port: 8443
+admin_username: admin
+admin_password: adminsecret
+warName: helloworld.war
+warRemotePath: /opt/apache-tomcat-7.0.61/webapps/
+warUrl: https://s3-us-west-2.amazonaws.com/traininghimanshu1/sample.war
