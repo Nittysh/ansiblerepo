@@ -1,0 +1,95 @@
+# installing GIT
+- name: install GIT
+  yum: 
+    name: git
+    state: latest
+
+# creating a direcory for java installation in the machine
+- name: creating a director for java installation
+  file:
+    path: "{{ java_install_dir }}"
+    state: directory
+    
+#download tar file
+- name: download java tar file
+  get_url:
+    url: "{{ java_tar_ball }}"
+    dest: /opt
+    mode: 0777
+
+#untar
+- name: untar the java tar ball
+  shell: tar xvzf /opt/jdk-8u60-ea-bin-b17-linux-x64-26_may_2015.tar.gz -C "{{ java_install_dir }}"
+    
+
+# setting the java home path in .bashrc file
+- name: setting java home path
+  lineinfile:
+    dest: /root/.bashrc
+    line: export JAVA_HOME={{ java_install_dir }}/jdk1.8.0_{{ java_sub_version }}
+    state: present
+
+# setting the java bin path in .bashrc file
+- name: setting the java path
+  lineinfile:
+    dest: /root/.bashrc
+    line: export PATH=$JAVA_HOME/bin:$PATH
+    state: present  
+  
+# executing the source command to load functions into current shell  
+- name: running the source command
+  shell: source /root/.bashrc
+
+
+
+
+
+# install tomcat
+- name: add group "tomcat"
+  group: name=tomcat
+
+- name: add user "tomcat"
+  user: name=tomcat group=tomcat home=/usr/share/tomcat createhome=no
+  become: True
+  become_method: sudo
+
+- name: Download Tomcat
+  get_url: url=http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.61/bin/apache-tomcat-7.0.61.tar.gz dest=/opt/apache-tomcat-7.0.61.tar.gz
+
+- name: Extract archive
+  command: chdir=/usr/share /bin/tar xvf /opt/apache-tomcat-7.0.61.tar.gz -C /opt/ creates=/opt/apache-tomcat-7.0.61
+
+- name: Symlink install directory
+  file: src=/opt/apache-tomcat-7.0.61 path=/usr/share/tomcat state=link
+
+- name: Change ownership of Tomcat installation
+  file: path=/usr/share/tomcat/ owner=tomcat group=tomcat state=directory recurse=yes
+
+- name: Configure Tomcat server
+  template: src=server.xml dest=/usr/share/tomcat/conf/
+  notify: restart tomcat
+
+- name: Configure Tomcat users
+  template: src=tomcat-users.xml dest=/usr/share/tomcat/conf/
+  notify: restart tomcat
+
+- name: Install Tomcat init script
+  copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
+
+- name: Start Tomcat
+  service: name=tomcat state=started enabled=yes
+
+- name: wait for tomcat to start
+  wait_for: port={{ http_port }}  
+  
+- name: download jenkins
+  get_url:
+    url: http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+    dest: /opt/apache-tomcat-7.0.61/webapps
+
+- name: restart Tomcat
+  service: name=tomcat state=restarted enabled=yes
+  
+- name: copy passcode from given path
+  shell: cat /usr/share/tomcat/.jenkins/secrets/initialAdminPassword
+

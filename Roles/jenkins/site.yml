@@ -1,0 +1,13 @@
+--- 
+- name: install the jenkins ansible 
+  become: True
+  hosts: all
+  become_method: sudo
+  remote_user: ec2-user
+  become_user: root
+  
+  
+  
+  roles:
+    - jenkins
+ 
