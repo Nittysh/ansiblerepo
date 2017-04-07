@@ -1,0 +1,35 @@
+- ec2:
+    key_name: botokey
+    instance_type: t2.micro
+    image: ami-8ca83fec
+    wait: yes
+    group: botogroup
+    count: 1
+    vpc_subnet_id: subnet-7da3781a
+    region: us-west-2
+    assign_public_ip: yes
+    instance_tags:
+         Name: jenkins
+         Owner: nittysh
+  register: ec2
+  
+  
+- name: Wait for SSH to come up
+  wait_for:
+        host: "{{ item.public_ip }}"
+        port: 22
+        delay: 60
+        timeout: 300
+        state: started
+  with_items: "{{ ec2.instances }}"
+           
+       
+    
+- name: Add new instance to host group
+  add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: amazon
+  with_items: "{{ ec2.instances }}"
+
+
+    
